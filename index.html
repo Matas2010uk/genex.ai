@@ -87,7 +87,7 @@ label{font-size:14px;font-weight:600;margin-bottom:5px;display:block}
   height:48px;
   border:1.5px solid #e1e1e1;
   background:#fff;
-  color:#000;                 /* ✅ TEXT BLACK */
+  color:#000;
   border-radius:10px;
   font-weight:600;
   display:flex;
@@ -97,6 +97,25 @@ label{font-size:14px;font-weight:600;margin-bottom:5px;display:block}
   cursor:pointer
 }
 .google-btn i{color:#ea4335}
+
+/* INFO */
+.info{
+  display:none;
+  background:#f1f5ff;
+  color:#2d79f3;
+  padding:10px;
+  border-radius:10px;
+  font-size:13px;
+  margin-bottom:15px;
+  text-align:center
+}
+.resend{
+  color:#2d79f3;
+  font-weight:600;
+  cursor:pointer;
+  display:block;
+  margin-top:6px
+}
 
 /* BUTTON */
 button{
@@ -123,19 +142,23 @@ button{
 
 <nav>
   <div class="logo">Genix<span>AI</span></div>
-
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="pricing.html">Pricing</a>
     <a href="feedback.html">Feedback</a>
   </div>
-
   <div class="join-btn" id="navBtn">Login</div>
 </nav>
 
 <div class="main">
 <form class="form">
   <h2 id="title">Login</h2>
+
+  <div class="info" id="infoBox">
+    Verification email sent.  
+    Please check your inbox.
+    <span class="resend" id="resendBtn">Resend email</span>
+  </div>
 
   <label>Email</label>
   <div class="input-box">
@@ -196,11 +219,14 @@ const submit = document.getElementById('submit');
 const switchText = document.getElementById('switchText');
 const navBtn = document.getElementById('navBtn');
 const googleBox = document.getElementById('googleBox');
+const infoBox = document.getElementById('infoBox');
+const resendBtn = document.getElementById('resendBtn');
 const email = document.getElementById('email');
 const password = document.getElementById('password');
 
 window.toggle = () => {
   loginMode = !loginMode;
+  infoBox.style.display = "none";
   title.textContent = loginMode ? "Login" : "Sign Up";
   submit.textContent = loginMode ? "Login" : "Create Account";
   navBtn.textContent = loginMode ? "Login" : "Sign Up";
@@ -223,9 +249,16 @@ submit.onclick = async (e)=>{
     }else{
       const res = await createUserWithEmailAndPassword(auth,email.value,password.value);
       await sendEmailVerification(res.user);
-      alert("Verification email sent. Please check your inbox.");
+      infoBox.style.display = "block";
     }
   }catch(err){ alert(err.message); }
+};
+
+resendBtn.onclick = async ()=>{
+  if(auth.currentUser){
+    await sendEmailVerification(auth.currentUser);
+    alert("Verification email resent.");
+  }
 };
 
 googleBtn.onclick = async ()=>{
