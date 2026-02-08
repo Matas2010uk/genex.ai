@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Genix AI | Neural Image Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --secondary: #d946ef;
+      --accent: #00f2ff;
+      --bg: #02040a;
+      --card: rgba(10, 15, 30, 0.4);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(217, 70, 239, 0.1) 0%, transparent 40%),
+        var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* NAVBAR */
+    nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+      height: 65px;
+      background: rgba(10, 15, 30, 0.7);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 0;
+      border-radius: 100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+      z-index: 1000;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
+    .logo { font-weight: 800; font-size: 20px; letter-spacing: -1px; }
+    .logo span { color: var(--primary); }
+
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    /* ANIMATED GET STARTED BUTTON */
+    .nav-btn {
+      position: relative;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5);
+    }
+
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 20%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: rotate(30deg);
+      transition: all 0.6s ease;
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -60%; }
+      20% { left: 120%; }
+      100% { left: 120%; }
+    }
+
+    /* HERO SECTION - More space below */
+    .hero {
+      padding: 220px 20px 150px; /* Increased top and bottom padding */
+      text-align: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(45px, 9vw, 92px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -5px;
+      background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* CORE SECTION - Separated from Hero */
+    .middle-section {
+      padding: 150px 5% 150px; /* Increased vertical padding to separate sections */
+      display: flex;
+      justify-content: center;
+    }
+
+    .bento-container {
+      width: 100%;
+      max-width: 1100px;
+      height: 600px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    }
+
+    .step-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      transform: scale(0.9) translateY(20px);
+      text-align: center;
+    }
+
+    .step-content.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .pulse-line {
+      position: absolute;
+      bottom: 60px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .line-segment {
+      width: 80px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .line-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    .evolution-viewport {
+      width: 70%;
+      height: 60%;
+      background: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1000') center/cover;
+      border-radius: 24px;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
+      margin-bottom: 20px;
+    }
+
+    /* BOTTOM REVIEWS - Separated from Bento */
+    .bottom-reviews {
+      padding: 150px 5% 200px; /* Added massive space at the very bottom */
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .reviews-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .reviews-header span {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .reviews-header h2 {
+      font-size: 34px;
+      letter-spacing: -1px;
+      margin-top: 10px;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .review-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 40px;
+      border-radius: 32px;
+      transition: 0.4s;
+    }
+
+    .review-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-10px);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .reviewer {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .reviewer img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+    }
+
+    @media (max-width: 900px) {
+      .review-grid { grid-template-columns: 1fr; }
+      .evolution-viewport { width: 90%; }
+      .hero { padding: 180px 20px 100px; }
+      .middle-section, .bottom-reviews { padding: 100px 5%; }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">Genix<span>AI</span></div>
+  <div class="nav-links">
+    <a href="Gallery.html">Gallery</a>
+    <a href="Model.html">Models</a>
+    <a href="Pricing.html">Pricing</a>
+  </div>
+  <a href="get.start.html" class="nav-btn">Get Started</a>
+</nav>
+
+<section class="hero">
+  <h1>Neural AI Mastery</h1>
+</section>
+
+<section class="middle-section">
+  <div class="bento-container">
+    <div class="step-content active" id="s1">
+      <div style="font-size:60px;">⌨️</div>
+      <h3 style="color:var(--accent)">01. Prompt</h3>
+      <p style="color:var(--muted)">Define your vision with neural tokens.</p>
+    </div>
+
+    <div class="step-content" id="s2">
+      <div style="font-size:60px;">⚡</div>
+      <h3 style="color:var(--secondary)">02. Process</h3>
+      <p style="color:var(--muted)">Synthesizing pixels in high-dimensional space.</p>
+    </div>
+
+    <div class="step-content" id="s3">
+      <div class="evolution-viewport"></div>
+      <h3>03. Evolve</h3>
+      <p style="color:var(--muted)">The final masterpiece is rendered.</p>
+    </div>
+
+    <div class="pulse-line">
+      <div class="line-segment"><div class="line-fill" id="fill1"></div></div>
+      <div class="line-segment"><div class="line-fill" id="fill2"></div></div>
+      <div class="line-segment"><div class="line-fill" id="fill3"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="bottom-reviews">
+  <div class="reviews-header">
+    <span>TESTIMONIALS</span>
+    <h2>The Artist’s Choice</h2>
+  </div>
+
+  <div class="review-grid">
+    <div class="review-card">
+      <p style="color:var(--muted); line-height:1.7;">
+        “The generation speed is unreal. Genix is now my default creative engine.”
+      </p>
+      <div class="reviewer">
+        <img src="https://i.pravatar.cc/100?u=1">
+        <div>
+          <strong>Sarah Chen</strong><br>
+          <small style="color:var(--primary)">Art Director</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <p style="color:var(--muted); line-height:1.7;">
+        “Lighting, depth, realism — this feels like a cinematographer inside an AI.”
+      </p>
+      <div class="reviewer">
+        <img src="https://i.pravatar.cc/100?u=2">
+        <div>
+          <strong>David Voe</strong><br>
+          <small style="color:var(--primary)">VFX Artist</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <p style="color:var(--muted); line-height:1.7;">
+        “Clean UI, zero friction, insane output quality. Exactly how AI tools should feel.”
+      </p>
+      <div class="reviewer">
+        <img src="https://i.pravatar.cc/100?u=3">
+        <div>
+          <strong>Elena Frost</strong><br>
+          <small style="color:var(--primary)">UI Designer</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+let step = 1;
+const duration = 3000;
+
+function cycle() {
+  document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.line-fill').forEach(f => {
+    f.style.transition = 'none';
+    f.style.width = '0%';
+  });
+
+  setTimeout(() => {
+    document.getElementById(`s${step}`).classList.add('active');
+    const fill = document.getElementById(`fill${step}`);
+    if(fill) {
+        fill.style.transition = `width ${duration}ms linear`;
+        fill.style.width = '100%';
+    }
+    step = step === 3 ? 1 : step + 1;
+  }, 50);
+}
+
+cycle();
+setInterval(cycle, duration + 200);
+</script>
+
+</body>
+</html>

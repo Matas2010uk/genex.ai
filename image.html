@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Genix AI – Studio Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ... (Styles kept exactly the same) ... */
+    :root { --accent: #00ffcc; --accent-2: #7000ff; --bg: #050505; --panel: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
+    .aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(120px); opacity: 0.3; }
+    .blob { position: absolute; width: 600px; height: 600px; background: var(--accent-2); border-radius: 50%; animation: move 25s infinite alternate; top: -10%; left: -10%; }
+    .blob2 { position: absolute; right: -5%; bottom: -5%; width: 500px; height: 500px; background: var(--accent); border-radius: 50%; animation: move 18s infinite alternate-reverse; }
+    @keyframes move { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(15%, 20%) rotate(90deg); } }
+    header { padding: 40px 5%; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--glass-border); font-weight: 700; letter-spacing: 3px; font-size: 14px; text-transform: uppercase; }
+    .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .pulse-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+    .app-container { display: grid; grid-template-columns: 1fr 400px; gap: 25px; padding: 0 5% 60px; max-width: 1600px; margin: 0 auto; }
+    .main-canvas { background: var(--panel); border: 1px solid var(--glass-border); border-radius: 24px; height: 600px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); box-shadow: inset 0 0 40px rgba(0,0,0,0.5); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .main-canvas.scanning { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 255, 204, 0.15), inset 0 0 20px rgba(0, 255, 204, 0.05); }
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--panel); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); }
+    .label-tag { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 12px; display: block; letter-spacing: 2px; font-weight: 700; }
+    .model-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .model-btn { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 12px 5px; border-radius: 10px; color: #fff; font-family: inherit; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: center; text-transform: uppercase; }
+    .model-btn.active { border-color: var(--accent); background: rgba(0, 255, 204, 0.1); box-shadow: 0 0 15px rgba(0, 255, 204, 0.1); }
+    .prompt-box { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; color: #fff; font-family: inherit; outline: none; transition: border 0.3s; resize: none; height: 140px; margin-bottom: 20px; }
+    .prompt-box:focus { border-color: var(--accent); }
+    .magic-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; background: #fff; color: #000; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+    .magic-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3); background: var(--accent); }
+    .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); font-size: 11px; text-align: center; transition: 0.3s; position: relative; }
+    .stat-box:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); }
+    .stat-select { width: 100%; background: transparent; color: #fff; border: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; text-align: center; text-align-last: center; appearance: none; -webkit-appearance: none; cursor: pointer; outline: none; margin-top: 4px; }
+    .stat-select option { background: #111; color: #fff; padding: 10px; }
+    .scanline { position: absolute; top: -100%; left: 0; width: 100%; height: 60px; background: linear-gradient(to bottom, transparent, var(--accent), transparent); opacity: 0.6; filter: drop-shadow(0 0 15px var(--accent)); pointer-events: none; display: none; z-index: 10; }
+    .scanning .scanline { display: block; animation: scan 2s ease-in-out infinite; }
+    @keyframes scan { 0% { top: -20%; opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { top: 120%; opacity: 0; } }
+    .cyber-loader { width: 50px; height: 50px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: var(--accent); animation: spin 1s ease-in-out infinite; margin: 0 auto 15px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.3); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #image-result { width: 100%; height: 100%; object-fit: contain; display: none; animation: reveal 1.2s ease-out forwards; }
+    @keyframes reveal { from { opacity: 0; filter: brightness(2) blur(20px); } to { opacity: 1; filter: brightness(1) blur(0); } }
+    
+    /* Image generation animation */
+    .generating-animation {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      display: none;
+    }
+    
+    .generating-animation.active {
+      display: block;
+    }
+    
+    .pixel-grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      gap: 2px;
+    }
+    
+    .pixel {
+      background: var(--accent);
+      border-radius: 2px;
+      opacity: 0;
+      animation: pixelPop 2s ease-in-out infinite;
+    }
+    
+    @keyframes pixelPop {
+      0%, 100% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    .pixel:nth-child(1) { animation-delay: 0s; }
+    .pixel:nth-child(2) { animation-delay: 0.1s; }
+    .pixel:nth-child(3) { animation-delay: 0.2s; }
+    .pixel:nth-child(4) { animation-delay: 0.3s; }
+    .pixel:nth-child(5) { animation-delay: 0.4s; }
+    .pixel:nth-child(6) { animation-delay: 0.5s; }
+    .pixel:nth-child(7) { animation-delay: 0.6s; }
+    .pixel:nth-child(8) { animation-delay: 0.7s; }
+    .pixel:nth-child(9) { animation-delay: 0.8s; }
+    .pixel:nth-child(10) { animation-delay: 0.9s; }
+    .pixel:nth-child(11) { animation-delay: 1.0s; }
+    .pixel:nth-child(12) { animation-delay: 1.1s; }
+    .pixel:nth-child(13) { animation-delay: 1.2s; }
+    .pixel:nth-child(14) { animation-delay: 1.3s; }
+    .pixel:nth-child(15) { animation-delay: 1.4s; }
+    .pixel:nth-child(16) { animation-delay: 1.5s; }
+    .pixel:nth-child(17) { animation-delay: 1.6s; }
+    .pixel:nth-child(18) { animation-delay: 1.7s; }
+    .pixel:nth-child(19) { animation-delay: 1.8s; }
+    .pixel:nth-child(20) { animation-delay: 1.9s; }
+    .pixel:nth-child(21) { animation-delay: 0.05s; }
+    .pixel:nth-child(22) { animation-delay: 0.15s; }
+    .pixel:nth-child(23) { animation-delay: 0.25s; }
+    .pixel:nth-child(24) { animation-delay: 0.35s; }
+    .pixel:nth-child(25) { animation-delay: 0.45s; }
+    .pixel:nth-child(26) { animation-delay: 0.55s; }
+    .pixel:nth-child(27) { animation-delay: 0.65s; }
+    .pixel:nth-child(28) { animation-delay: 0.75s; }
+    .pixel:nth-child(29) { animation-delay: 0.85s; }
+    .pixel:nth-child(30) { animation-delay: 0.95s; }
+    .pixel:nth-child(31) { animation-delay: 1.05s; }
+    .pixel:nth-child(32) { animation-delay: 1.15s; }
+    .pixel:nth-child(33) { animation-delay: 1.25s; }
+    .pixel:nth-child(34) { animation-delay: 1.35s; }
+    .pixel:nth-child(35) { animation-delay: 1.45s; }
+    .pixel:nth-child(36) { animation-delay: 1.55s; }
+    .pixel:nth-child(37) { animation-delay: 1.65s; }
+    .pixel:nth-child(38) { animation-delay: 1.75s; }
+    .pixel:nth-child(39) { animation-delay: 1.85s; }
+    .pixel:nth-child(40) { animation-delay: 1.95s; }
+    .pixel:nth-child(41) { animation-delay: 0.025s; }
+    .pixel:nth-child(42) { animation-delay: 0.125s; }
+    .pixel:nth-child(43) { animation-delay: 0.225s; }
+    .pixel:nth-child(44) { animation-delay: 0.325s; }
+    .pixel:nth-child(45) { animation-delay: 0.425s; }
+    .pixel:nth-child(46) { animation-delay: 0.525s; }
+    .pixel:nth-child(47) { animation-delay: 0.625s; }
+    .pixel:nth-child(48) { animation-delay: 0.725s; }
+    .pixel:nth-child(49) { animation-delay: 0.825s; }
+    .pixel:nth-child(50) { animation-delay: 0.925s; }
+    .pixel:nth-child(51) { animation-delay: 1.025s; }
+    .pixel:nth-child(52) { animation-delay: 1.125s; }
+    .pixel:nth-child(53) { animation-delay: 1.225s; }
+    .pixel:nth-child(54) { animation-delay: 1.325s; }
+    .pixel:nth-child(55) { animation-delay: 1.425s; }
+    .pixel:nth-child(56) { animation-delay: 1.525s; }
+    .pixel:nth-child(57) { animation-delay: 1.625s; }
+    .pixel:nth-child(58) { animation-delay: 1.725s; }
+    .pixel:nth-child(59) { animation-delay: 1.825s; }
+    .pixel:nth-child(60) { animation-delay: 1.925s; }
+    .pixel:nth-child(61) { animation-delay: 0.075s; }
+    .pixel:nth-child(62) { animation-delay: 0.175s; }
+    .pixel:nth-child(63) { animation-delay: 0.275s; }
+    .pixel:nth-child(64) { animation-delay: 0.375s; }
+    #error-message { color: #ff4444; background: rgba(50, 0, 0, 0.5); border: 1px solid #ff4444; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 11px; display: none; word-wrap: break-word; }
+    @media (max-width: 1000px) { .app-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="aurora"><div class="blob"></div><div class="blob2"></div></div>
+
+<header>
+  <div class="logo-badge">GENIX // STUDIO v2.0</div>
+  <div class="status-indicator"><div class="pulse-dot"></div><span>Beta</span></div>
+</header>
+
+<div class="app-container">
+<div class="main-canvas" id="stage">
+    <div class="scanline"></div>
+    <div id="idle-ui" style="text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 20px; opacity: 0.2;">✧</div>
+      <p style="letter-spacing: 8px; opacity: 0.3; font-weight: 300; font-size: 12px;">AWAITING COMMAND</p>
+    </div>
+    <div class="generating-animation" id="generating-animation">
+      <div class="pixel-grid">
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+      </div>
+    </div>
+    <img id="image-result" src="" alt="AI Output">
+  </div>
+
+  <div class="sidebar">
+    <div class="card">
+      <span class="label-tag">MODEL_SELECTION</span>
+      <div class="model-selector">
+        <button class="model-btn active" id="btn-nana" onclick="setModel(this, 'nana-banana')">NANA BANANA</button>
+        <button class="model-btn" id="btn-pro" onclick="setModel(this, 'nana-banana-pro')">NANA BANANA PRO</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="label-tag">PRIMARY_PROMPT</span>
+      <textarea class="prompt-box" id="pInput" placeholder="Describe the impossible..."></textarea>
+      
+      <button class="magic-btn" onclick="startGeneration()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        GENERATE ASSET
+      </button>
+      <div id="error-message"></div>
+    </div>
+
+    <div class="card">
+        <span class="label-tag">ENGINE_STATS</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="stat-box">
+                <div style="opacity: 0.5; margin-bottom: 2px;">RATIO</div>
+                <select class="stat-select" id="ratioSelect" onchange="updateCanvasRatio()">
+                    <option value="16:9">16:9</option>
+                    <option value="9:16">9:16</option>
+                </select>
+            </div>
+            <div class="stat-box">
+                <div style="opacity: 0.5; margin-bottom: 2px;">IMAGE QUALITY</div>
+                <select class="stat-select" id="qualitySelect">
+                    <option value="standard">Standard</option>
+                    <option value="hd">HD (Pro)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================
+  // 🔑 API CONFIGURATION
+  // ==========================================
+  const apiKey = ''; // Insert your KIE AI API Key here
+  
+  // KIE AI task-based endpoints
+  const createTaskEndpoint = 'https://api.kie.ai/api/v1/jobs/createTask';
+  const getTaskEndpoint = 'https://api.kie.ai/api/v1/jobs/recordInfo';
+  
+  // KIE AI model mapping
+  const modelMapping = {
+    'nana-banana': 'google/nano-banana',
+    'nana-banana-pro': 'nano-banana-pro'
+  };
+  let currentModelID = 'google/nano-banana';
+  // ==========================================
+
+function setModel(btn, modelName) {
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Map to KIE AI model identifiers
+    currentModelID = modelMapping[modelName] || modelMapping['nana-banana'];
+    console.log("Switched to model: " + currentModelID);
+    
+    // Update UI to show model change
+    const idle = document.getElementById('idle-ui');
+    idle.innerHTML = `
+      <div style="font-size: 40px; margin-bottom: 20px; opacity: 0.2;">✧</div>
+      <p style="letter-spacing: 8px; opacity: 0.3; font-weight: 300; font-size: 12px;">MODEL: ${modelName.toUpperCase()}</p>
+    `;
+  }
+
+  function updateCanvasRatio() {
+    const val = document.getElementById('ratioSelect').value;
+    const stage = document.getElementById('stage');
+    if(val === '16:9') { stage.style.height = '600px'; } 
+    else if(val === '9:16') { stage.style.height = '800px'; }
+  }
+
+async function startGeneration() {
+    const stage = document.getElementById('stage');
+    const idle = document.getElementById('idle-ui');
+    const img = document.getElementById('image-result');
+    const btn = document.querySelector('.magic-btn');
+    const errorBox = document.getElementById('error-message');
+    const prompt = document.getElementById('pInput').value;
+    const ratio = document.getElementById('ratioSelect').value;
+    
+    errorBox.style.display = 'none';
+    errorBox.innerText = '';
+
+    if(!apiKey) { 
+        errorBox.innerText = 'Missing KIE AI API Key! Get one from https://kie.ai/api-key';
+        errorBox.style.display = 'block';
+        return; 
+    }
+    if(!prompt) { 
+        errorBox.innerText = 'Please enter a prompt first.';
+        errorBox.style.display = 'block';
+        return; 
+    }
+
+    // Map ratio to KIE AI format
+    let imageSize = "1:1";
+    if (ratio === "16:9") imageSize = "16:9";
+    if (ratio === "9:16") imageSize = "9:16";
+
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.innerText = 'CREATING TASK...';
+
+    stage.classList.add('scanning');
+    idle.style.display = 'none';
+    document.getElementById('generating-animation').classList.add('active');
+    img.style.display = 'none';
+
+    try {
+        // STEP 1: Create Task with KIE AI format
+        const taskResponse = await fetch(createTaskEndpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: currentModelID,
+                input: {
+                    prompt: prompt,
+                    image_size: imageSize,
+                    output_format: "png"
+                }
+            })
+        });
+
+        if (!taskResponse.ok) {
+            const errorText = await taskResponse.text();
+            throw new Error(`Task Creation Failed (${taskResponse.status}): ${errorText}`);
+        }
+
+        const taskData = await taskResponse.json();
+        
+        if (taskData.code !== 200) {
+            throw new Error(`Task Creation Error: ${taskData.msg}`);
+        }
+
+        const taskId = taskData.data.taskId;
+        console.log("Task created:", taskId);
+
+        // STEP 2: Poll for Results
+        btn.innerText = 'GENERATING...';
+        const result = await pollTaskStatus(taskId);
+        
+        // STEP 3: Display Result
+        displayResult(result);
+
+    } catch (error) {
+        console.error(error);
+        handleError(error);
+    } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> REGENERATE`;
+    }
+}
+
+async function pollTaskStatus(taskId, maxAttempts = 120, baseInterval = 3000) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+            const response = await fetch(
+                `${getTaskEndpoint}?taskId=${taskId}`,
+                {
+                    headers: { 
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Status check failed: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            const task = result.data;
+            
+            console.log(`Attempt ${attempt + 1}: State = ${task.state}`);
+            
+            // Update UI based on state
+            if (task.state === 'waiting' || task.state === 'queuing') {
+                btn.innerText = 'QUEUED...';
+            } else if (task.state === 'generating') {
+                btn.innerText = 'GENERATING...';
+            } else if (task.state === 'success') {
+                // Parse resultJson for image URLs
+                const results = JSON.parse(task.resultJson);
+                return results;
+            } else if (task.state === 'fail') {
+                throw new Error(`Generation Failed: ${task.failMsg || 'Unknown error'}`);
+            }
+            
+            // Calculate delay (exponential backoff)
+            let delay = baseInterval;
+            if (attempt > 10) delay = 5000;  // After 30s, poll every 5s
+            if (attempt > 30) delay = 10000; // After 2min, poll every 10s
+            
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
+        } catch (error) {
+            if (attempt === maxAttempts - 1) {
+                throw error;
+            }
+            await new Promise(resolve => setTimeout(resolve, baseInterval));
+        }
+    }
+    
+    throw new Error("Task timed out after maximum attempts");
+}
+
+function displayResult(results) {
+    const stage = document.getElementById('stage');
+    const idle = document.getElementById('idle-ui');
+    const img = document.getElementById('image-result');
+    
+    stage.classList.remove('scanning');
+    document.getElementById('generating-animation').classList.remove('active');
+    idle.style.display = 'none';
+    
+    if (results.resultUrls && results.resultUrls.length > 0) {
+        img.src = results.resultUrls[0];
+        img.style.display = 'block';
+    } else {
+        throw new Error("Task completed but no image URLs found.");
+    }
+}
+
+function handleError(error) {
+    const stage = document.getElementById('stage');
+    const idle = document.getElementById('idle-ui');
+    const errorBox = document.getElementById('error-message');
+    
+    stage.classList.remove('scanning');
+    document.getElementById('generating-animation').classList.remove('active');
+    
+    idle.innerHTML = `<div style="font-size: 40px; margin-bottom: 20px; opacity: 0.2;">✧</div>
+                      <p style="letter-spacing: 8px; opacity: 0.3; font-weight: 300; font-size: 12px;">READY</p>`;
+    idle.style.display = 'block';
+    
+    errorBox.innerText = "FAILED: " + error.message;
+    errorBox.style.display = 'block';
+}
+
+function resetButton() {
+    const btn = document.querySelector('.magic-btn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> REGENERATE`;
+}
+</script>
+
+</body>
+</html>
