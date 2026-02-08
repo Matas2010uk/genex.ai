@@ -9,52 +9,34 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:'Plus Jakarta Sans',sans-serif;
   min-height:100vh;
   background:url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=1920&q=80')
   center/cover no-repeat fixed;
 }
-*{box-sizing:border-box;margin:0;padding:0}
 
 /* NAV */
 nav{
-  position:fixed;
-  top:20px;
-  left:50%;
+  position:fixed;top:20px;left:50%;
   transform:translateX(-50%);
-  width:90%;
-  max-width:1200px;
-  height:65px;
+  width:90%;max-width:1200px;height:65px;
   background:rgba(255,255,255,.1);
   backdrop-filter:blur(20px);
   border-radius:100px;
   padding:0 30px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  display:flex;justify-content:space-between;align-items:center;
 }
 .logo{color:#fff;font-weight:800;font-size:20px}
 .logo span{color:#00f2ff}
-.nav-links a{
-  color:#fff;text-decoration:none;margin:0 15px;font-weight:600;font-size:14px
-}
-.join-btn{
-  background:#fff;color:#000;padding:10px 22px;
-  border-radius:50px;font-weight:700;font-size:13px;cursor:pointer
-}
+.nav-links a{color:#fff;text-decoration:none;margin:0 15px;font-weight:600;font-size:14px}
+.join-btn{background:#fff;color:#000;padding:10px 22px;border-radius:50px;font-weight:700;font-size:13px}
 
 /* FORM */
-.main{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  padding-left:10%;
-}
+.main{height:100vh;display:flex;align-items:center;padding-left:10%}
 .form{
-  background:#fff;
-  padding:30px;
-  width:380px;
+  background:#fff;padding:30px;width:380px;
   border-radius:20px;
   box-shadow:0 20px 40px rgba(0,0,0,.2)
 }
@@ -62,18 +44,25 @@ h2{font-size:22px;font-weight:800;margin-bottom:20px}
 label{font-size:14px;font-weight:600;margin-bottom:5px;display:block}
 .input-box{
   border:1.5px solid #e1e1e1;
-  border-radius:10px;
-  height:48px;
-  display:flex;
-  align-items:center;
-  padding:0 12px;
-  margin-bottom:15px
+  border-radius:10px;height:48px;
+  display:flex;align-items:center;
+  padding:0 12px;margin-bottom:15px
 }
-.input-box input{
-  border:none;outline:none;width:100%;
-  margin-left:10px;font-size:14px
-}
+.input-box input{border:none;outline:none;width:100%;margin-left:10px;font-size:14px}
 .toggle-pass{cursor:pointer;color:#aaa}
+
+/* GOOGLE */
+.google-box{display:none;margin-bottom:15px}
+.google-btn{
+  width:100%;height:48px;
+  border:1.5px solid #e1e1e1;
+  background:#fff;color:#000;
+  border-radius:10px;
+  font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;cursor:pointer;
+}
+.google-btn i{color:#ea4335}
 
 /* STRENGTH */
 .strength{display:none;margin-bottom:15px}
@@ -110,94 +99,119 @@ button{
 </nav>
 
 <div class="main">
-  <form class="form">
-    <h2 id="title">Login</h2>
+<form class="form">
+  <h2 id="title">Login</h2>
 
-    <label>Email</label>
-    <div class="input-box">
-      <i class="fa-solid fa-at"></i>
-      <input type="email" placeholder="Enter your email" required>
-    </div>
+  <label>Email</label>
+  <div class="input-box">
+    <i class="fa-solid fa-at"></i>
+    <input type="email" id="email" placeholder="Enter your email" required>
+  </div>
 
-    <label>Password</label>
-    <div class="input-box">
-      <i class="fa-solid fa-lock"></i>
-      <input type="password" id="password" placeholder="Enter password" required>
-      <i class="fa-solid fa-eye toggle-pass" id="eye"></i>
-    </div>
+  <label>Password</label>
+  <div class="input-box">
+    <i class="fa-solid fa-lock"></i>
+    <input type="password" id="password" placeholder="Enter password" required>
+    <i class="fa-solid fa-eye toggle-pass" id="eye"></i>
+  </div>
 
-    <div class="strength" id="strengthBox">
-      <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="text" id="strengthText">Weak</div>
-    </div>
+  <div class="google-box" id="googleBox">
+    <button type="button" class="google-btn" id="googleBtn">
+      <i class="fa-brands fa-google"></i>
+      Continue with Google
+    </button>
+  </div>
 
-    <button id="submit">Login</button>
+  <div class="strength" id="strengthBox">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="text" id="strengthText">Weak</div>
+  </div>
 
-    <div class="switch" id="switchText">
-      Don’t have an account? <span onclick="toggle()">Sign Up</span>
-    </div>
-  </form>
+  <button id="submit">Login</button>
+
+  <div class="switch" id="switchText">
+    Don’t have an account? <span onclick="toggle()">Sign Up</span>
+  </div>
+</form>
 </div>
 
-<script>
-let loginMode = true;
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+/* 🔥 PASTE YOUR FIREBASE CONFIG FROM CONSOLE HERE 🔥 */
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY_HERE",
+  authDomain: "PASTE_AUTH_DOMAIN_HERE",
+  projectId: "PASTE_PROJECT_ID_HERE",
+  storageBucket: "PASTE_STORAGE_BUCKET_HERE",
+  messagingSenderId: "PASTE_SENDER_ID_HERE",
+  appId: "PASTE_APP_ID_HERE"
+};
+/* 🔥 END FIREBASE CONFIG 🔥 */
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+/* UI LOGIC */
+let loginMode = true;
 const title = document.getElementById('title');
 const submit = document.getElementById('submit');
 const switchText = document.getElementById('switchText');
 const navBtn = document.getElementById('navBtn');
 const strengthBox = document.getElementById('strengthBox');
+const googleBox = document.getElementById('googleBox');
 
-function toggle(){
+window.toggle = () => {
   loginMode = !loginMode;
-
   if(loginMode){
-    title.innerText = 'Login';
-    submit.innerText = 'Login';
-    navBtn.innerText = 'Login';
-    strengthBox.style.display = 'none';
-    switchText.innerHTML =
-      `Don’t have an account? <span onclick="toggle()">Sign Up</span>`;
+    title.textContent='Login';
+    submit.textContent='Login';
+    navBtn.textContent='Login';
+    strengthBox.style.display='none';
+    googleBox.style.display='none';
+    switchText.innerHTML=`Don’t have an account? <span onclick="toggle()">Sign Up</span>`;
   }else{
-    title.innerText = 'Sign Up';
-    submit.innerText = 'Create Account';
-    navBtn.innerText = 'Sign Up';
-    strengthBox.style.display = 'block';
-    switchText.innerHTML =
-      `Already have an account? <span onclick="toggle()">Login</span>`;
+    title.textContent='Sign Up';
+    submit.textContent='Create Account';
+    navBtn.textContent='Sign Up';
+    strengthBox.style.display='block';
+    googleBox.style.display='block';
+    switchText.innerHTML=`Already have an account? <span onclick="toggle()">Login</span>`;
   }
-}
-
-/* PASSWORD TOGGLE */
-const eye = document.getElementById('eye');
-const password = document.getElementById('password');
-
-eye.onclick = () => {
-  password.type = password.type === 'password' ? 'text' : 'password';
-  eye.classList.toggle('fa-eye');
-  eye.classList.toggle('fa-eye-slash');
 };
 
-/* PASSWORD STRENGTH (Sign Up only) */
-password.oninput = () => {
-  if(loginMode) return;
+/* EMAIL AUTH */
+submit.onclick = async (e)=>{
+  e.preventDefault();
+  try{
+    loginMode
+      ? await signInWithEmailAndPassword(auth,email.value,password.value)
+      : await createUserWithEmailAndPassword(auth,email.value,password.value);
+    alert("Success");
+  }catch(err){ alert(err.message); }
+};
 
-  let v = password.value;
-  let s = 0;
-  if(v.length>5) s++;
-  if(v.length>9) s++;
-  if(/[A-Z]/.test(v)&&/\d/.test(v)) s++;
-  if(/[^A-Za-z0-9]/.test(v)) s++;
+/* GOOGLE AUTH */
+googleBtn.onclick = async ()=>{
+  try{
+    await signInWithPopup(auth,provider);
+    alert("Signed in with Google");
+  }catch(err){ alert(err.message); }
+};
 
-  const fill=document.getElementById('fill');
-  const text=document.getElementById('strengthText');
-  const colors=['red','orange','#2d79f3','green'];
-  const labels=['Weak','Medium','Strong','Very Strong'];
-  let i=Math.min(s,3);
-
-  fill.style.width=(i+1)*25+'%';
-  fill.style.background=colors[i];
-  text.innerText=labels[i];
+/* PASSWORD TOGGLE */
+eye.onclick=()=>{
+  password.type=password.type==='password'?'text':'password';
+  eye.classList.toggle('fa-eye-slash');
 };
 </script>
 
