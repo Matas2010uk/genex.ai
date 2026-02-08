@@ -64,12 +64,6 @@ label{font-size:14px;font-weight:600;margin-bottom:5px;display:block}
 }
 .google-btn i{color:#ea4335}
 
-/* STRENGTH */
-.strength{display:none;margin-bottom:15px}
-.bar{height:4px;background:#eee;border-radius:2px}
-.fill{height:100%;width:0%;background:red;transition:.3s}
-.text{font-size:11px;font-weight:700;margin-top:4px}
-
 /* BUTTON */
 button{
   width:100%;height:48px;border:none;
@@ -140,7 +134,7 @@ import {
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* ✅ FIXED FIREBASE CONFIG */
+/* ✅ FIREBASE CONFIG (FIXED) */
 const firebaseConfig = {
   apiKey: "AIzaSyCjxQ5mZWvehqCE_bUUvsahJ6nyhERg43c",
   authDomain: "genexai-b776d.firebaseapp.com",
@@ -175,22 +169,23 @@ window.toggle = () => {
     : `Already have an account? <span onclick="toggle()">Login</span>`;
 };
 
-/* EMAIL AUTH */
+/* EMAIL AUTH → REDIRECT TO image.html */
 submit.onclick = async (e)=>{
   e.preventDefault();
   try{
     loginMode
       ? await signInWithEmailAndPassword(auth,email.value,password.value)
       : await createUserWithEmailAndPassword(auth,email.value,password.value);
-    window.location.href = "Canvas-image.html";
+
+    window.location.href = "image.html";
   }catch(err){ alert(err.message); }
 };
 
-/* GOOGLE AUTH */
+/* GOOGLE AUTH → REDIRECT TO image.html */
 googleBtn.onclick = async ()=>{
   try{
     await signInWithPopup(auth,provider);
-    window.location.href = "Canvas-image.html";
+    window.location.href = "image.html";
   }catch(err){ alert(err.message); }
 };
 
