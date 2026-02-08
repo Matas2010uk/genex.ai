@@ -151,11 +151,11 @@ button{
 </nav>
 
 <div class="main">
-<form class="form">
+<form class="form" onsubmit="return false;">
   <h2 id="title">Login</h2>
 
   <div class="info" id="infoBox">
-    Verification email sent.  
+    Verification email sent.
     Please check your inbox.
     <span class="resend" id="resendBtn">Resend email</span>
   </div>
@@ -180,7 +180,7 @@ button{
     </button>
   </div>
 
-  <button id="submit">Login</button>
+  <button type="button" id="submit">Login</button>
 
   <div class="switch" id="switchText">
     Don’t have an account? <span onclick="toggle()">Sign Up</span>
@@ -199,7 +199,6 @@ import {
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCjxQ5mZWvehqCE_bUUvsahJ6nyhERg43c",
   authDomain: "genexai-b776d.firebaseapp.com",
@@ -214,15 +213,18 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 let loginMode = true;
-const title = document.getElementById('title');
-const submit = document.getElementById('submit');
-const switchText = document.getElementById('switchText');
-const navBtn = document.getElementById('navBtn');
-const googleBox = document.getElementById('googleBox');
-const infoBox = document.getElementById('infoBox');
-const resendBtn = document.getElementById('resendBtn');
-const email = document.getElementById('email');
-const password = document.getElementById('password');
+
+const title = document.getElementById("title");
+const submit = document.getElementById("submit");
+const switchText = document.getElementById("switchText");
+const navBtn = document.getElementById("navBtn");
+const googleBox = document.getElementById("googleBox");
+const googleBtn = document.getElementById("googleBtn");
+const infoBox = document.getElementById("infoBox");
+const resendBtn = document.getElementById("resendBtn");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const eye = document.getElementById("eye");
 
 window.toggle = () => {
   loginMode = !loginMode;
@@ -236,37 +238,38 @@ window.toggle = () => {
     : `Already have an account? <span onclick="toggle()">Login</span>`;
 };
 
-submit.onclick = async (e)=>{
-  e.preventDefault();
-  try{
-    if(loginMode){
-      const res = await signInWithEmailAndPassword(auth,email.value,password.value);
-      if(!res.user.emailVerified){
+submit.onclick = async () => {
+  try {
+    if (loginMode) {
+      const res = await signInWithEmailAndPassword(auth, email.value, password.value);
+      if (!res.user.emailVerified) {
         alert("Please verify your email before logging in.");
         return;
       }
       window.location.href = "image.html";
-    }else{
-      const res = await createUserWithEmailAndPassword(auth,email.value,password.value);
+    } else {
+      const res = await createUserWithEmailAndPassword(auth, email.value, password.value);
       await sendEmailVerification(res.user);
       infoBox.style.display = "block";
     }
-  }catch(err){ alert(err.message); }
+  } catch (err) {
+    alert(err.message);
+  }
 };
 
-resendBtn.onclick = async ()=>{
-  if(auth.currentUser){
+resendBtn.onclick = async () => {
+  if (auth.currentUser) {
     await sendEmailVerification(auth.currentUser);
     alert("Verification email resent.");
   }
 };
 
-googleBtn.onclick = async ()=>{
-  await signInWithPopup(auth,provider);
+googleBtn.onclick = async () => {
+  await signInWithPopup(auth, provider);
   window.location.href = "image.html";
 };
 
-eye.onclick=()=>{
+eye.onclick = () => {
   password.type = password.type === "password" ? "text" : "password";
 };
 </script>
