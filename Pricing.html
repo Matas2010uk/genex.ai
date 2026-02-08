@@ -1,205 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Genix AI | Auth</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing | Genix AI Neural Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --secondary: #d946ef;
+      --accent: #00f2ff;
+      --bg: #02040a;
+      --card: rgba(10, 15, 30, 0.4);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --muted: #94a3b8;
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<style>
-body{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  min-height:100vh;
-  background:url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=1920&q=80')
-  center/cover no-repeat fixed;
-}
-*{box-sizing:border-box;margin:0;padding:0}
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15), transparent 50%), var(--bg);
+      min-height: 100vh;
+      padding-top: 150px;
+    }
 
-/* NAV */
-nav{
-  position:fixed;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:1200px;
-  height:65px;
-  background:rgba(255,255,255,.1);
-  backdrop-filter:blur(20px);
-  border-radius:100px;
-  padding:0 30px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.logo{color:#fff;font-weight:800;font-size:20px}
-.logo span{color:#00f2ff}
-.nav-links a{
-  color:#fff;text-decoration:none;margin:0 15px;font-weight:600;font-size:14px
-}
-.join-btn{
-  background:#fff;color:#000;padding:10px 22px;
-  border-radius:50px;font-weight:700;font-size:13px;cursor:pointer
-}
+    /* SHARED NAVBAR COMPONENT */
+    nav {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 1200px; height: 65px;
+      background: rgba(10, 15, 30, 0.6); backdrop-filter: blur(20px);
+      border: 1px solid var(--border); border-radius: 100px;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 1000;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .logo { font-weight: 800; font-size: 20px; letter-spacing: -1px; }
+    .logo a { text-decoration: none; color: inherit; }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 30px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: 0.3s; }
+    .nav-links a:hover { color: #fff; }
 
-/* FORM */
-.main{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  padding-left:10%;
-}
-.form{
-  background:#fff;
-  padding:30px;
-  width:380px;
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.2)
-}
-h2{font-size:22px;font-weight:800;margin-bottom:20px}
-label{font-size:14px;font-weight:600;margin-bottom:5px;display:block}
-.input-box{
-  border:1.5px solid #e1e1e1;
-  border-radius:10px;
-  height:48px;
-  display:flex;
-  align-items:center;
-  padding:0 12px;
-  margin-bottom:15px
-}
-.input-box input{
-  border:none;outline:none;width:100%;
-  margin-left:10px;font-size:14px
-}
-.toggle-pass{cursor:pointer;color:#aaa}
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.03); color: var(--primary);
+      padding: 10px 22px; border-radius: 50px; font-weight: 700; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 1px; border: 1px solid rgba(139, 92, 246, 0.3);
+      cursor: default;
+    }
 
-/* STRENGTH */
-.strength{display:none;margin-bottom:15px}
-.bar{height:4px;background:#eee;border-radius:2px}
-.fill{height:100%;width:0%;background:red;transition:.3s}
-.text{font-size:11px;font-weight:700;margin-top:4px}
+    .secret-link { font-weight: 800; color: rgba(255,255,255,0.05) !important; cursor: help; transition: 0.5s !important; }
+    .secret-link:hover { color: var(--accent) !important; text-shadow: 0 0 10px var(--accent); }
 
-/* BUTTON */
-button{
-  width:100%;height:48px;border:none;
-  background:#151717;color:#fff;
-  font-size:15px;font-weight:600;
-  border-radius:10px;cursor:pointer
-}
-.switch{text-align:center;margin-top:15px;font-size:13px}
-.switch span{color:#2d79f3;font-weight:600;cursor:pointer}
+    .pricing-header { text-align: center; margin-bottom: 60px; }
+    .pricing-header h1 { font-size: clamp(32px, 5vw, 56px); letter-spacing: -4px; margin-bottom: 15px; }
 
-@media(max-width:768px){
-  .main{justify-content:center;padding-left:0}
-}
-</style>
+    .pricing-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; max-width: 1200px; margin: 0 auto 100px; padding: 0 20px; }
+    
+    .card-container {
+      width: 320px; background: linear-gradient(to top right, #975af4, #2f7cf8 40%, #78aafa 65%, #934cff 100%);
+      padding: 4px; border-radius: 32px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .card-container:hover { transform: translateY(-10px); }
+
+    .card-content {
+      width: 100%; height: 100%; background-color: #0a0f1e; border-radius: 30px;
+      padding: 24px; display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .price-val { font-size: 36px; color: #fff; font-weight: 800; }
+    
+    .card-btn {
+      background: linear-gradient(4deg, #975af4, #2f7cf8 40%, #78aafa 65%, #934cff 100%);
+      padding: 14px; border: none; width: 100%; border-radius: 12px;
+      color: #fff; font-weight: 700; cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    }
+
+    .card-separate { display: flex; gap: 8px; align-items: center; font-size: 10px; color: rgba(131, 131, 131, 0.5); }
+    .separate { width: 100%; height: 1px; background-color: rgba(131, 131, 131, 0.2); }
+    .option { display: flex; gap: 10px; align-items: center; color: #bab9b9; font-size: 13px; }
+  </style>
 </head>
-
 <body>
 
 <nav>
-  <div class="logo">Genix<span>AI</span></div>
+  <div class="logo"><a href="index.html">Genix<span>AI</span></a></div>
   <div class="nav-links">
-    <a href="#">Home</a>
-    <a href="#">Pricing</a>
-    <a href="#">Feedback</a>
+    <a href="index.html">Home</a>
+    <a href="index.html#gallery">Gallery</a> <a href="Pricing.html" style="color: #fff;">Pricing</a>
+    <a href="vault.html" class="secret-link">?</a> 
   </div>
-  <div class="join-btn" id="navBtn">Login</div>
+  <div class="nav-btn">Coming Soon</div>
 </nav>
 
-<div class="main">
-  <form class="form">
-    <h2 id="title">Login</h2>
+<section class="pricing-header">
+  <h1>Neural Tiers</h1>
+</section>
 
-    <label>Email</label>
-    <div class="input-box">
-      <i class="fa-solid fa-at"></i>
-      <input type="email" placeholder="Enter your email" required>
+<div class="pricing-grid">
+  <div class="card-container">
+    <div class="card-content">
+      <p style="color:var(--accent); font-weight:800; font-size:11px;">ARCHITECT</p>
+      <p class="price-val">£25.00 <span style="font-size:14px; color:var(--muted);">£ / mo</span></p>
+      <button class="card-btn">Deploy</button>
+      <div class="card-separate"><div class="separate"></div><p>FEATURES</p><div class="separate"></div></div>
+      <div class="card-list-features"><div class="option">✓ 1k Generations</div><div class="option">✓ 2K Resolution</div></div>
     </div>
+  </div>
 
-    <label>Password</label>
-    <div class="input-box">
-      <i class="fa-solid fa-lock"></i>
-      <input type="password" id="password" placeholder="Enter password" required>
-      <i class="fa-solid fa-eye toggle-pass" id="eye"></i>
+  <div class="card-container">
+    <div class="card-content">
+      <p style="color:var(--secondary); font-weight:800; font-size:11px;">NEURAL PRO</p>
+      <p class="price-val">£65.00 <span style="font-size:14px; color:var(--muted);">£ / mo</span></p>
+      <button class="card-btn">Activate</button>
+      <div class="card-separate"><div class="separate"></div><p>FEATURES</p><div class="separate"></div></div>
+      <div class="card-list-features"><div class="option">✓ Unlimited Generations</div><div class="option">✓ 4K RAW Output</div></div>
     </div>
+  </div>
 
-    <div class="strength" id="strengthBox">
-      <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="text" id="strengthText">Weak</div>
+  <div class="card-container">
+    <div class="card-content">
+      <p style="color:var(--primary); font-weight:800; font-size:11px;">ENGINE CORE</p>
+      <p class="price-val">£85.00 <span style="font-size:14px; color:var(--muted);">£ / mo</span></p>
+      <button class="card-btn">Initialize</button>
+      <div class="card-separate"><div class="separate"></div><p>ENTERPRISE</p><div class="separate"></div></div>
+      <div class="card-list-features">
+        <div class="option">✓ Private Nodes</div>
+        <div class="option">✓ API Access</div>
+      </div>
     </div>
-
-    <button id="submit">Login</button>
-
-    <div class="switch" id="switchText">
-      Don’t have an account? <span onclick="toggle()">Sign Up</span>
-    </div>
-  </form>
+  </div>
 </div>
-
-<script>
-let loginMode = true;
-
-const title = document.getElementById('title');
-const submit = document.getElementById('submit');
-const switchText = document.getElementById('switchText');
-const navBtn = document.getElementById('navBtn');
-const strengthBox = document.getElementById('strengthBox');
-
-function toggle(){
-  loginMode = !loginMode;
-
-  if(loginMode){
-    title.innerText = 'Login';
-    submit.innerText = 'Login';
-    navBtn.innerText = 'Login';
-    strengthBox.style.display = 'none';
-    switchText.innerHTML =
-      `Don’t have an account? <span onclick="toggle()">Sign Up</span>`;
-  }else{
-    title.innerText = 'Sign Up';
-    submit.innerText = 'Create Account';
-    navBtn.innerText = 'Sign Up';
-    strengthBox.style.display = 'block';
-    switchText.innerHTML =
-      `Already have an account? <span onclick="toggle()">Login</span>`;
-  }
-}
-
-/* PASSWORD TOGGLE */
-const eye = document.getElementById('eye');
-const password = document.getElementById('password');
-
-eye.onclick = () => {
-  password.type = password.type === 'password' ? 'text' : 'password';
-  eye.classList.toggle('fa-eye');
-  eye.classList.toggle('fa-eye-slash');
-};
-
-/* PASSWORD STRENGTH (Sign Up only) */
-password.oninput = () => {
-  if(loginMode) return;
-
-  let v = password.value;
-  let s = 0;
-  if(v.length>5) s++;
-  if(v.length>9) s++;
-  if(/[A-Z]/.test(v)&&/\d/.test(v)) s++;
-  if(/[^A-Za-z0-9]/.test(v)) s++;
-
-  const fill=document.getElementById('fill');
-  const text=document.getElementById('strengthText');
-  const colors=['red','orange','#2d79f3','green'];
-  const labels=['Weak','Medium','Strong','Very Strong'];
-  let i=Math.min(s,3);
-
-  fill.style.width=(i+1)*25+'%';
-  fill.style.background=colors[i];
-  text.innerText=labels[i];
-};
-</script>
 
 </body>
 </html>
